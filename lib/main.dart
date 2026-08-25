@@ -1,6 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:home_widget/home_widget.dart';
+
+/// Must match the Kotlin class name of the AppWidgetProvider exactly.
+const String _kWidgetProviderName = 'MementoMoriWidgetProvider';
 
 void main() {
   runApp(const MementoMoriApp());
@@ -36,13 +41,17 @@ class AgeCounterPage extends StatefulWidget {
 }
 
 class _AgeCounterPageState extends State<AgeCounterPage> {
+  static const _prefsKey = 'birth_date_millis';
+
   DateTime? _birthDate;
   Timer? _timer;
   DateTime _now = DateTime.now();
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    _loadBirthDate();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
         _now = DateTime.now();
@@ -54,6 +63,41 @@ class _AgeCounterPageState extends State<AgeCounterPage> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadBirthDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final millis = prefs.getInt(_prefsKey);
+    setState(() {
+      _birthDate = millis != null
+          ? DateTime.fromMillisecondsSinceEpoch(millis)
+          : null;
+      _loading = false;
+    });
+
+    // Keep the home screen widget in sync even if this launch didn't
+    // involve picking a new date (e.g. widget added after date was set).
+    if (millis != null) {
+      await _pushToHomeScreenWidget(millis);
+    }
+  }
+
+  Future<void> _saveBirthDate(DateTime date) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_prefsKey, date.millisecondsSinceEpoch);
+    await _pushToHomeScreenWidget(date.millisecondsSinceEpoch);
+  }
+
+  /// Sends the birthdate to the native Android widget's storage and asks
+  /// the system to refresh it. The widget itself computes Y.M.D locally
+  /// (see MementoMoriWidgetProvider.kt) so it keeps working even when this
+  /// app isn't running.
+  Future<void> _pushToHomeScreenWidget(int birthMillis) async {
+    await HomeWidget.saveWidgetData<int>(_prefsKey, birthMillis);
+    await HomeWidget.updateWidget(
+      name: _kWidgetProviderName,
+      androidName: _kWidgetProviderName,
+    );
   }
 
   Future<void> _pickBirthDate() async {
@@ -80,15 +124,20 @@ class _AgeCounterPageState extends State<AgeCounterPage> {
       helpText: 'Time of birth (optional, defaults to 00:00)',
     );
 
+    final newBirthDate = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime?.hour ?? 0,
+      pickedTime?.minute ?? 0,
+    );
+
     setState(() {
-      _birthDate = DateTime(
-        pickedDate.year,
-        pickedDate.month,
-        pickedDate.day,
-        pickedTime?.hour ?? 0,
-        pickedTime?.minute ?? 0,
-      );
+      _birthDate = newBirthDate;
     });
+
+    // Persist so it survives app restarts.
+    await _saveBirthDate(newBirthDate);
   }
 
   /// Calendar-accurate breakdown of the time elapsed between [birth] and [now].
@@ -137,6 +186,12 @@ class _AgeCounterPageState extends State<AgeCounterPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Colors.white38)),
+      );
+    }
+
     final breakdown = _birthDate != null
         ? _calculateAge(_birthDate!, _now)
         : null;
