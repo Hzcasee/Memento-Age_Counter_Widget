@@ -1,6 +1,3 @@
-// Place at: android/app/src/main/kotlin/<your/package/path>/MementoMoriWidgetProvider.kt
-// The `package` line below must match your app's applicationId
-// (check android/app/build.gradle if unsure).
 package com.example.slave
 
 import android.appwidget.AppWidgetManager
@@ -20,10 +17,12 @@ class MementoMoriWidgetProvider : HomeWidgetProvider() {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.memento_widget_layout)
 
-            // Same key used on the Flutter side: HomeWidget.saveWidgetData<int>('birth_date_millis', ...)
-            val birthMillis = widgetData.getLong("birth_date_millis", -1L)
+            // Saved from Dart as a String (see _pushToHomeScreenWidget in
+            // main.dart) because home_widget's platform channel rejects
+            // large 64-bit Long values directly.
+            val birthMillis = widgetData.getString("birth_date_millis", null)?.toLongOrNull()
 
-            if (birthMillis == -1L) {
+            if (birthMillis == null) {
                 views.setTextViewText(R.id.widget_value, "--.--.--")
             } else {
                 views.setTextViewText(R.id.widget_value, formatAge(birthMillis))

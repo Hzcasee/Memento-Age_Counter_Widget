@@ -93,7 +93,11 @@ class _AgeCounterPageState extends State<AgeCounterPage> {
   /// (see MementoMoriWidgetProvider.kt) so it keeps working even when this
   /// app isn't running.
   Future<void> _pushToHomeScreenWidget(int birthMillis) async {
-    await HomeWidget.saveWidgetData<int>(_prefsKey, birthMillis);
+    // Saved as a String rather than an int: home_widget's platform channel
+    // rejects large 64-bit Long values (birthMillis exceeds 32-bit range),
+    // throwing PlatformException(-10, "Invalid Type Long...").
+    // String is unambiguously supported and avoids that entirely.
+    await HomeWidget.saveWidgetData<String>(_prefsKey, birthMillis.toString());
     await HomeWidget.updateWidget(
       name: _kWidgetProviderName,
       androidName: _kWidgetProviderName,
