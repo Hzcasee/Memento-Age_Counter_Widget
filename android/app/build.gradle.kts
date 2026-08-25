@@ -34,6 +34,11 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // Disabled as a safety net for the androidx.work / WorkDatabase
+            // startup crash caused by the home_widget plugin. Re-enable once
+            // confirmed stable, with proper Room/WorkManager keep rules if needed.
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
@@ -46,4 +51,12 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Pins a single, consistent WorkManager version to resolve the
+    // "Failed to create an instance of androidx.work.impl.WorkDatabase"
+    // crash triggered by the home_widget plugin pulling in a conflicting
+    // or incomplete WorkManager dependency graph.
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 }
