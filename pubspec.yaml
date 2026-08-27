@@ -97,7 +97,8 @@ flutter:
 
 # Configuration for the flutter_launcher_icons package (run:
 # dart run flutter_launcher_icons  — after placing your logo at the path below).
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/icon/app_icon.png"
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon/app_icon.png
+    - assets/images/imago_mortis.png

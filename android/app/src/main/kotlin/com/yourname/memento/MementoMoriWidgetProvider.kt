@@ -1,9 +1,10 @@
-package com.example.slave
+package com.yourname.memento
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.widget.RemoteViews
+import es.antonborri.home_widget.HomeWidgetLaunchIntent
 import es.antonborri.home_widget.HomeWidgetProvider
 import java.util.Calendar
 
@@ -27,6 +28,10 @@ class MementoMoriWidgetProvider : HomeWidgetProvider() {
             } else {
                 views.setTextViewText(R.id.widget_value, formatAge(birthMillis))
             }
+
+            // Tapping anywhere on the widget opens the app.
+            val pendingIntent = HomeWidgetLaunchIntent.getActivity(context, MainActivity::class.java)
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
             appWidgetManager.updateAppWidget(widgetId, views)
         }

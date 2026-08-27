@@ -202,57 +202,56 @@ class _AgeCounterPageState extends State<AgeCounterPage> {
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            children: [
+              const Text(
+                'MEMENTO MORI',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 22,
+                  letterSpacing: 6,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'remember that you must die',
+                style: TextStyle(
+                  color: Colors.white38,
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 48),
+              if (breakdown == null)
                 const Text(
-                  'MEMENTO MORI',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 22,
-                    letterSpacing: 6,
-                    fontWeight: FontWeight.w600,
+                  'Your time is not yet counted.',
+                  style: TextStyle(color: Colors.white54, fontSize: 16),
+                )
+              else
+                _AgeDisplay(breakdown: breakdown),
+              const SizedBox(height: 48),
+              OutlinedButton(
+                onPressed: _pickBirthDate,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white70,
+                  side: const BorderSide(color: Colors.white24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'remember that you must die',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 13,
-                    fontStyle: FontStyle.italic,
-                    letterSpacing: 1,
-                  ),
+                child: Text(
+                  _birthDate == null ? 'Set birth date' : 'Change birth date',
+                  style: const TextStyle(letterSpacing: 1),
                 ),
-                const SizedBox(height: 48),
-                if (breakdown == null)
-                  const Text(
-                    'Your time is not yet counted.',
-                    style: TextStyle(color: Colors.white54, fontSize: 16),
-                  )
-                else
-                  _AgeDisplay(breakdown: breakdown),
-                const SizedBox(height: 48),
-                OutlinedButton(
-                  onPressed: _pickBirthDate,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white70,
-                    side: const BorderSide(color: Colors.white24),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: Text(
-                    _birthDate == null ? 'Set birth date' : 'Change birth date',
-                    style: const TextStyle(letterSpacing: 1),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 56),
+              const _OriginSection(),
+            ],
           ),
         ),
       ),
@@ -323,6 +322,87 @@ class _LabelRow extends StatelessWidget {
             ),
           )
           .toList(),
+    );
+  }
+}
+
+/// Fills the previously-empty space below the counter with the historical
+/// background of the memento mori tradition, paired with the Imago Mortis
+/// woodcut.
+class _OriginSection extends StatelessWidget {
+  const _OriginSection();
+
+  static const _paragraphs = [
+    'Memento Mori is believed to have originated from an ancient Roman '
+        'tradition.',
+    'After a major military victory, the triumphant military generals were '
+        'paraded through the streets to the roars of the masses. The '
+        'ceremonial procession could span the course of a day with the '
+        'military leader riding in a chariot drawn by four horses. There '
+        'was not a more coveted honor. The general was idolized, viewed as '
+        'divine by his troops and the public alike. But riding in the same '
+        'chariot, standing just behind the worshipped general, was a '
+        'slave. The slave\u2019s sole responsibility for the entirety of '
+        'the procession was to whisper in the general\u2019s ear '
+        'continuously, \u201cRespice post te. Hominem te esse memento. '
+        'Memento mori!\u201d',
+    '\u201cLook behind. Remember thou art mortal. Remember you must '
+        'die!\u201d',
+    'The slave served to remind the victor at the peak of glory, this '
+        'god-like adoration would soon end, while the truth of his '
+        'mortality remained.',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Divider(color: Colors.white12, height: 1),
+        const SizedBox(height: 32),
+        const Text(
+          'ORIGIN',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white54,
+            fontSize: 13,
+            letterSpacing: 4,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 20),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Image.asset(
+            'assets/images/imago_mortis.png',
+            fit: BoxFit.cover,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Imago Mortis \u2014 the Dance of Death',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white38,
+            fontSize: 11,
+            fontStyle: FontStyle.italic,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 24),
+        for (final paragraph in _paragraphs) ...[
+          Text(
+            paragraph,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+              height: 1.6,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ],
     );
   }
 }
