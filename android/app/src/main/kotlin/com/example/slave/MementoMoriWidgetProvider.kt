@@ -1,4 +1,4 @@
-package com.yourname.memento
+package com.example.slave
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
