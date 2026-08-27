@@ -350,7 +350,7 @@ class _OriginSection extends StatelessWidget {
         'die!\u201d',
     'The slave served to remind the victor at the peak of glory, this '
         'god-like adoration would soon end, while the truth of his '
-        'mortality remained.',
+        'mortality remained. - The History of Memento Mori, by Dr. David J. Eicher',
   ];
 
   @override
